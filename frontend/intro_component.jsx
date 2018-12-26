@@ -9,8 +9,10 @@ class IntroComponent extends React.Component {
 
 	handleSubmit(event) {
 		event.preventDefault();
-		let gameCode = document.getElementById(gameCodeId);
-		console.log(gameCode.value);
+		let gameCode = document.getElementById(gameCodeId).value;
+		$.post("/game", {gameCode: gameCode}, function() {
+			console.log("done", gameCode);
+		})
 	}
 
 	render() {
