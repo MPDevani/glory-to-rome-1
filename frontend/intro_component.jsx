@@ -1,4 +1,4 @@
-const gameCodeId = "gameCode";
+const GAME_CODE_ID = "gameCodeInputIdentifier";
 
 class IntroComponent extends React.Component {
 	constructor(props) {
@@ -9,7 +9,7 @@ class IntroComponent extends React.Component {
 
 	handleSubmit(event) {
 		event.preventDefault();
-		let gameCode = document.getElementById(gameCodeId).value;
+		let gameCode = document.getElementById(GAME_CODE_ID).value;
 		$.post("/game", {gameCode: gameCode}, function() {
 			console.log("done", gameCode);
 		})
@@ -20,7 +20,7 @@ class IntroComponent extends React.Component {
 			<form onSubmit={this.handleSubmit}>
 				<label>
 				  Code:
-				  <input type="text" name="gameCode" id={gameCodeId} />
+				  <input type="text" name="gameCode" id={GAME_CODE_ID} />
 				 </label>	
 				 <input type="submit" value="Submit" />
 			</form>

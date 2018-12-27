@@ -10,11 +10,17 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.post("/game", function(req, res) {
-	console.log(Game);
-	return Game.create({
-	    gameCode: req.body.gameCode
-	}).then(function(game) {
-		res.json({gameCode: game.gameCode, id: game.id});
+	return Game.findOrCreate({
+		where: {
+	    	gameCode: req.body.gameCode
+	    }
+	}).spread(function(game, created) {
+		console.log(game);
+		res.json({
+			gameCode: game.gameCode,
+			id: game.id,
+			created: created
+		});
 	});
 })
 
