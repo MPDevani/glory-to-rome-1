@@ -8,6 +8,7 @@ const Player = db.Player;
 const Promise = require('bluebird');
 
 app.use(express.static('frontend'));
+app.use(express.static('dist'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 

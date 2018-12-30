@@ -1,4 +1,7 @@
-class GamePendingComponent extends React.Component {
+import React from "react";
+import ReactDOM from "react-dom";
+
+export class GamePendingComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {players: undefined};

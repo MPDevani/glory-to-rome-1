@@ -1,7 +1,11 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import {GamePendingComponent} from "./game_pending_component.jsx";
+
 const GAME_CODE_ID = "gameCodeInputIdentifier";
 const PLAYER_NAME_ID = "playerNameInputIdentifier";
 
-class IntroComponent extends React.Component {
+export class IntroComponent extends React.Component {
 	constructor(props) {
 		super(props);
 
