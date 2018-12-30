@@ -11,6 +11,10 @@ app.use(express.static('frontend'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+/**
+ * Requires parameters playerName and gameCode.
+ * returns object with property game.
+ */
 app.post("/game", function(req, res) {
 	let gameCode = req.body.gameCode;
 	let playerName = req.body.playerName;
@@ -34,12 +38,24 @@ app.post("/game", function(req, res) {
 		player = playerResult[0];
 		return game.addPlayer(player);
 	}).then((results) => {
-		console.log(results);
 		return res.json({
-			player: player,
 			game: game
 		});
 	});
-})
+});
+
+app.get("/game/:gameId/players", (req, res) => {
+	return Game.findOne({
+		where: {
+			id: req.params.gameId
+		}
+	}).then((game) => {
+		return game.getPlayers();
+	}).then((players) => {
+		return res.json({
+			players: players
+		});
+	});
+});
 
 app.listen(port, () => console.log(`Glory to Rome listening on port ${port}!`));

@@ -18,9 +18,14 @@ class IntroComponent extends React.Component {
 			playerName: playerName
 		};
 
-		$.post("/game", payload, function(result) {
+		$.post("/game", payload).then((result) => {
 			console.log(result);
-		})
+			ReactDOM.render(
+				<GamePendingComponent
+					gameId={result.game.id}
+					gameCode={result.game.gameCode}
+				/>, document.getElementById('glory-to-rome-container'));
+		});
 	}
 
 	render() {
