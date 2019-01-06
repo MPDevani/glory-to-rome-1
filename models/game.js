@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
   Game.associate = function(models) {
     // associations can be defined here
     Game.hasMany(models.Player, {foreignKey: 'gameId'});
+    Game.hasOne(models.Deck, {foreignKey: 'gameId'});
+    Game.hasMany(models.Hand, {foreignKey: 'gameId'});
+
+    Game.hasOne(models.Player, {as: 'leader', foreignKey: 'leaderId'});
+    Game.hasOne(models.Player, {as: 'currentTurn', foreignKey: 'currentTurnId'});
   };
 
   return Game;
