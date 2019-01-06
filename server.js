@@ -15,7 +15,7 @@ app.use(bodyParser.json())
  * Requires parameters playerName and gameCode.
  * returns object with property game.
  */
-app.post("/game", function(req, res) {
+app.post("/api/game", function(req, res) {
 	let gameCode = req.body.gameCode;
 	let playerName = req.body.playerName;
 	let game;
@@ -60,7 +60,7 @@ app.post("/game", function(req, res) {
 	});
 });
 
-app.get("/game/:gameId/players", (req, res) => {
+app.get("/api/game/:gameId/players", (req, res) => {
 	return Game.findOne({
 		where: {
 			id: req.params.gameId
@@ -72,6 +72,10 @@ app.get("/game/:gameId/players", (req, res) => {
 			players: players
 		});
 	});
+});
+
+app.get("/*", (req, res) => {
+	res.sendFile(`${__dirname}/frontend/index.html`)
 });
 
 app.listen(port, () => console.log(`Glory to Rome listening on port ${port}!`));

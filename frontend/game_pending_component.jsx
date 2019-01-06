@@ -9,7 +9,7 @@ class GamePendingComponent extends React.Component {
 	}
 
 	searchForPlayers() {
-		$.get("/game/" + this.gameId + "/players").then((result) => {
+		$.get("/api/game/" + this.gameId + "/players").then((result) => {
 			this.playersFound = true;
 			this.setState({players: result.players});
 		});
