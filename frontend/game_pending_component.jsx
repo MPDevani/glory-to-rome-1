@@ -17,7 +17,9 @@ class GamePendingComponent extends React.Component {
 
 	startGame(event) {
 		event.preventDefault();
-		console.log("STARTING GAME.");
+		$.post("/api/game/" + this.gameId + "/start").then((result) => {
+			console.log(result);
+		});
 	}
 
 	render() {

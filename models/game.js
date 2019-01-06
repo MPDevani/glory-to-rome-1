@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
     Game.hasOne(models.Deck, {foreignKey: 'gameId'});
     Game.hasMany(models.Hand, {foreignKey: 'gameId'});
 
-    Game.hasOne(models.Player, {as: 'leader', foreignKey: 'leaderId'});
-    Game.hasOne(models.Player, {as: 'currentTurn', foreignKey: 'currentTurnId'});
+    Game.belongsTo(models.Player, {as: 'leader', foreignKey: 'leaderId'});
+    Game.belongsTo(models.Player, {as: 'currentTurn', foreignKey: 'currentTurnId'});
   };
 
   return Game;
