@@ -59,4 +59,8 @@ app.get("/game/:gameId/players", (req, res) => {
 	});
 });
 
+app.get("/*", (req, res) => {
+	res.sendFile(`${__dirname}/frontend/index.html`)
+});
+
 app.listen(port, () => console.log(`Glory to Rome listening on port ${port}!`));
