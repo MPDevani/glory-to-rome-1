@@ -25,17 +25,8 @@ export class IntroComponent extends React.Component {
 		$.post("/api/game", payload).then((result) => {
 			console.log(result);
 			history.push("/game/" + result.game.id);
-
-			// ReactDOM.render(
-			// 	<GamePendingComponent
-			// 		gameId={result.game.id}
-			// 		gameCode={result.game.gameCode}
-			// 	/>, document.getElementById('glory-to-rome-container'));
 		});
 	}
-
-	// onSubmit={this.handleSubmit}
-	// onSubmit={(event) => this.handleSubmit(event, history)}
 
 	render() {
 		let GameCodeForm = withRouter(({ history }) => (
