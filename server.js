@@ -8,8 +8,73 @@ const Player = db.Player;
 const Deck = db.Deck;
 const Hand = db.Hand;
 const Promise = require('bluebird');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+app.use(cookieParser());
+app.use(session({secret: 'lalalala'}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use(express.static('frontend'));
+const isLoggedIn = (req, res, next) => {
+	if (req.user) {
+		return next();
+	} else {
+		res.cookie('redirect_url', req.path);
+		res.redirect('/login');
+	}
+};
+
+app.get('/login', (req, res) => {
+	if (req.user) {
+		let path = req.cookies.redirect_url || '/';
+		res.redirect(path);
+	}
+
+	res.sendFile(`${__dirname}/frontend/login.html`)
+})
+
+passport.use(new GoogleStrategy({
+		clientID: process.env.GOOGLE_CLIENT_ID,
+		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+	    callbackURL: "http://localhost:3000/auth/google/callback"
+	},
+	function(accessToken, refreshToken, profile, done) {
+		console.log("hello");
+		Player.findOrCreate({where: {
+			username: profile.id
+		}}).then((playerInfo) => {
+			return done(null, playerInfo[0]);
+		})
+}));
+
+passport.serializeUser((player, done) => {
+	done(null, player.id);
+});
+
+passport.deserializeUser((id, done) => {
+	Player.findById(id).then((player) => {
+		done(null, player);
+	});
+});
+
+app.get("/logout", (req, res) => {
+	req.logout();
+	res.redirect("/login");
+})
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res) {
+    let path = req.cookies.redirect_url || '/';
+	res.redirect(path);
+  });
+
+// app.use(express.static('frontend'));
 app.use(express.static('dist'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -206,8 +271,29 @@ app.get("/api/game/:gameId", (req, res) => {
 	})
 });
 
-app.get("/*", (req, res) => {
+app.get("/*", isLoggedIn, (req, res) => {
 	res.sendFile(`${__dirname}/frontend/index.html`)
 });
 
 app.listen(port, () => console.log(`Glory to Rome listening on port ${port}!`));
+
+/*
+
+Login path:
+if you're not logged in and you go to /game/4
+1. app.get('/*'...) is the matching route
+2. isLoggedIn runs before res.sendFile
+3. isLoggedIn sees that you're not logged in
+4. isLoggedIn stores the path you're going to in a cookie
+5. isLoggedIn redirects you to /login
+6. /login returns HTML page with a button to login through Google
+7. User clicks on the button which redirects to /auth/google
+8. /auth/google uses passport to login via Google.
+8b. Passport passes info to Google that redirect to /auth/google/callback when its complete.
+9. From /auth/google/callback, we check the cookies for a redirect_url and retrieve /game/4
+10. We redirect to /game/4
+11. isLoggedIn runs and sees we're logged in.
+12. isLoggedIn calls next() to let the regular action happen which is res.sendFile(...index.html)
+13. The frontend component sees the path /game/4 and uses the Switch to show proper page.
+
+*/
