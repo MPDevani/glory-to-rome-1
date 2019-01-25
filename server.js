@@ -12,6 +12,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const gameLib = require('./lib/game.js').getInstance(db);
 app.use(cookieParser());
 app.use(session({secret: 'lalalala'}));
 app.use(passport.initialize());
@@ -143,89 +144,15 @@ app.get("/api/game/:gameId/players", (req, res) => {
 });
 
 app.post("/api/game/:gameId/start", (req, res) => {
-	// These are the steps we need to implement
-	// 1. Create a deck
-	// 2. Create N number of player hands
-	// 3. Update number of cards for playerhands and deck
-	// 4. Pick a player to go first (Still need to do this)
-	// 5. Return
-	//      - Deck
-	//      - Playerhands
+	let gameId = req.params.gameId;
 
-	// We create a promise to find our game. We chain that to a promise to find
-	// all of the players for this game. We store this promise in a variable.
-	// To use "playersPromise", you can call .then on it and the argument will be
-	// players.
-	let gamePromise = Game.findOne({
-		where: {
-			id: req.params.gameId
-		}
-	});
-
-	let gameUpdatePromise = gamePromise.then((game) => {
-		game.hasStarted = true;
-		return game.save();
-	});
-
-	let playersPromise = gamePromise.then((game) => {
-		return game.getPlayers()
-	});
-
-	// Once we have all of the players, we create a deck. We need players in order
-	// to set the proper cardCount.
-	// We store this promise in a variable as well.
-	let deckCreationPromise = playersPromise.then((players) => {
-		return Deck.create({
-			gameId: req.params.gameId,
-			cardCount: 100 - (players.length * 5)
-		})
-	});
-
-	// We attach a second .then statement to playersPromise to create all of the
-	// players' hands.
-	let playerInfoPromises = playersPromise.then((players) => {
-		// Because we need to create a hand for each player, we have to iterate through
-		// the players array. We use .map in order to track each generated promise.
-		let handCreationPromises = players.map((player) => {
-			let handPromise = Hand.create({
-				gameId: req.params.gameId,
-				cardCount: 5,
-				playerId: player.id
-			});
-
-			// We want to associate the player and hand, so rather than just returning
-			// handPromise, we create an object and return the promise of those two.
-			// The result of this promise will be in the format presented below.
-			return Promise.props({
-				player: player,
-				hand: handPromise
-			});
-		});
-
-		// This returns the promise that is an accumulation of each player's
-		// "handeCreationPromise".
-		return Promise.all(handCreationPromises);
-	});
-
-	// We create one final promise so that all of the DB changes we've made can finish.
-	// Once the deck is created and the playerInfo is ready, we can return the results.
-	// The format of the result will be:
-	// {
-	// 	deck: DeckModel,
-	// 	playerInfo: [
-	// 		{
-	// 			player: playerModel,
-	// 			hand: handModel
-	// 		},
-	// 		...
-	// 	]
-	// }
-	return Promise.props({
-		playerInfo: playerInfoPromises,
-		deck: deckCreationPromise,
-		game: gameUpdatePromise
-	}).then((result) => {
-		res.json(result);
+	gameLib.startGame(gameId).then((results) => {
+		console.log(results.game);
+		console.log(results.playerInfo);
+		console.log(results.playerInfo[0].player);
+		console.log(results.playerInfo[0].hand);
+		console.log(results.deck);
+		res.json(results);
 	});
 });
 
