@@ -35,9 +35,9 @@ export class GameComponent extends React.Component {
 			}
 
 			players = result.playerInfo.map((playerInfo) => {
-				return new Player(playerInfo.player, playerInfo.hand);
+				return new Player(playerInfo.player, playerInfo.hand, playerInfo.cards);
 			});
-			deck = new Deck(result.deck);
+			deck = new Deck(result.deckInfo);
 
 			this.hasRetrievedGameInfo = true;
 			this.setState({

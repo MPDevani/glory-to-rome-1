@@ -7,7 +7,7 @@ module.exports = {
         'order',
         {
           type: Sequelize.INTEGER,
-          allowNull: false
+          allowNull: true
         }
       )
   },

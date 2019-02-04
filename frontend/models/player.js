@@ -1,11 +1,9 @@
 export class Player {
-	constructor(playerObject, handObject) {
+	constructor(playerObject, handObject, cards) {
 		this.id = playerObject.id;
 		this.username = playerObject.username;
-		if (handObject) {
-			this.hand = {
-				cardCount: handObject.cardCount
-			};
+		if (cards) {
+			this.cards = cards;
 		}
 	}
 }

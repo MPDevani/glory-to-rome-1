@@ -2,7 +2,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Hand = sequelize.define('Hand', {
     gameId: DataTypes.INTEGER,
-    cardCount: DataTypes.INTEGER,
     playerId: DataTypes.INTEGER
   }, {});
   Hand.associate = function(models) {

@@ -14,7 +14,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const gameLib = require('./lib/game.js').getInstance(db);
 app.use(cookieParser());
-app.use(session({secret: 'lalalala'}));
+app.use(session({secret: 'lalalala', saveUninitialized: true, resave: false}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -147,11 +147,7 @@ app.post("/api/game/:gameId/start", (req, res) => {
 	let gameId = req.params.gameId;
 
 	gameLib.startGame(gameId).then((results) => {
-		console.log(results.game);
-		console.log(results.playerInfo);
-		console.log(results.playerInfo[0].player);
-		console.log(results.playerInfo[0].hand);
-		console.log(results.deck);
+		console.log(results);
 		res.json(results);
 	});
 });
@@ -170,20 +166,34 @@ app.get("/api/game/:gameId", (req, res) => {
 		});
 	}).then((results) => {
 		return Promise.all(results.players.map((player) => {
-			let hand;
+			let handPromise;
+			let cardsPromise;
 			if (results.game.hasStarted) {
-				hand = player.getHand();
+				handPromise = player.getHand();
+				cardsPromise = handPromise.then((hand) => {
+					return hand.getCards()
+				});
 			}
 			return Promise.props({
 				player: player,
-				hand: hand
+				hand: handPromise,
+				cards: cardsPromise
 			});
 		}));
 	});
 
 	let deckPromise = gamePromise.then((game) => {
 		if (game.hasStarted) {
-			return game.getDeck();
+			let deckObj;
+			return game.getDeck().then((deck) => {
+				deckObj = deck;
+				return deck.getCards();
+			}).then((cards) => {
+				return {
+					deck: deckObj,
+					cardCount: cards.length
+				};
+			});
 		}
 
 		return undefined;
@@ -192,7 +202,7 @@ app.get("/api/game/:gameId", (req, res) => {
 	Promise.props({
 		playerInfo: playersPromise,
 		game: gamePromise,
-		deck: deckPromise
+		deckInfo: deckPromise
 	}).then((results) => {
 		res.json(results);
 	})
